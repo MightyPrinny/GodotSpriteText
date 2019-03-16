@@ -5,19 +5,19 @@ extends ReferenceRect
 var animate = false;
 var anim_timer = 0;
 var anim_timer_i:int = 0;
-export(String,MULTILINE) var text = "¬C01¬SSample ¬C02¬WText" setget set_text,get_text;
+export(String,MULTILINE) var text = "¬SSample ¬C01¬WText" setget set_text,get_text;
 export(String) var character_set = " !\"#$%&'()*+,-./0123456789;M<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 var _text = "";
 export var visible_characters:int = -1 setget set_visible_chars,get_visible_chars;
-export var font_texture:Texture = null;
-export var char_width:int = 8;
-export var char_height:int = 8;
+export var font_texture:Texture = null setget set_font_texture,get_font_texture;
+export var char_width:int = 8 setget set_char_width,get_char_width;
+export var char_height:int = 8 setget set_char_height,get_char_height;
 export var anim_speed:float = 60;
 export var tab_spaces:int = 2;
 var char_map:Dictionary;
 var can_draw:bool = false;
 var has_char_map = false;
-export var texture_rows:int = 10;
+export var texture_rows:int = 10 setget set_texture_rows,get_texture_rows;
 var wchars;
 var hchars;
 var colors = [];
@@ -26,14 +26,14 @@ var rng = RandomNumberGenerator.new();
 var anim_id:int = 0;
 
 func _ready():
+	_text = text;
 	set_process(true);
 	if font_texture != null:
 		can_draw = true;
 		setup();
-	print("ready");
 func set_text(var txt):
 	text = txt;
-	_text = text;
+	
 	if !is_inside_tree():
 		return;
 	_ready();
@@ -44,10 +44,53 @@ func get_text():
 	
 func set_visible_chars(var value):
 	visible_characters = value;
+	if !is_inside_tree():
+		return;
+	_ready();
+	update();
+	
+func get_char_width():
+	return char_width;
+	
+func set_char_width(v):
+	char_width = max(0,v);
+	if !is_inside_tree():
+		return;
+	_ready();
+	update();
+	
+func set_char_height(v):
+	char_height = max(0,v);
+	if !is_inside_tree():
+		return;
+	_ready();
+	update();
+
+func get_char_height():
+	return char_height
+	
+func get_texture_rows():
+	return texture_rows;
+	
+func set_texture_rows(v):
+	texture_rows = max(0,v);
+	if !is_inside_tree():
+		return;
+	_ready();
 	update();
 
 func get_visible_chars():
 	return visible_characters;
+	
+func get_font_texture():
+	return font_texture;
+	
+func set_font_texture(v):
+	font_texture = v;
+	if !is_inside_tree():
+		return;
+	_ready();
+	update();
 
 func setup():
 	var font_w:int = font_texture.get_width();
@@ -152,6 +195,8 @@ func _draw():
 		if i > floor(rect_size.x/char_width)-1:
 			j += 1;
 			i = 0;
+			if j*char_height > rect_size.y-char_height:
+				break;
 		
 		ci += 1;
 		
